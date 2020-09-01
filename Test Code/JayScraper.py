@@ -1,4 +1,4 @@
-import urllib.request, os.path, os, shutil, mimetypes, re, json, argparse
+import urllib.request, os.path, os, shutil, mimetypes, re, json, argparse, pprint
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -120,7 +120,7 @@ def getElement(lines, path, output):
 	for key, value in frequency.items():
 		("% s count: %d" % (key, value))
 	if output == 'file':
-		with open(path + "\\" +'Elemental_Data.json', 'w') as json_file:
+		with open(path + "\\" +'elemental_data.json', 'w') as json_file:
 			json_file.write("Elemental Count: ")
 			json.dump(frequency, json_file, indent=4)
 	else:
@@ -134,17 +134,27 @@ def getElements(path, output):
 	
 	getElement(lines, path, output)
 
-#def getContent(path):
-#	infilename = "Web_Data.txt"
-#	infile = open(path + "\\" + infilename,'r+')
-#	lines = infile.readlines()
-
-#	for line in lines:
-#		match = re.search(r'<div.*>(.*)<\/div>', line, re.IGNORECASE)
-#		if match:
-#			print(match.group(1))
-#			return
+def getContent(path, output):
 	
+	infilename = "Web_Data.txt"
+	infile = open(path + "\\" + infilename,'r')
+	str1 = " "
+	theLines = (str1.join(infile))
+	
+	strings = re.findall(r'.*((?:<script>?|<script\s*type=[\w\W]+)[^<]+<\/script>).*', theLines, re.IGNORECASE)
+	counter = 0
+	string_dict = {}
+	for string in strings:
+		counter += 1
+		cleanstring = re.sub(r'.*(<\/?\w+>?).*', "", string)
+		cleanstring = cleanstring.strip()
+		string_dict[counter] = cleanstring
+
+	if output == 'file':
+		with open(path + "\\" + "html_content.json", 'w') as json_file:
+			json.dump(string_dict, json_file, indent=4)
+	else:
+		print(json.dumps(string_dict, indent=4))
 
 def filesCreated(output):
 	if output == 'file':
@@ -172,7 +182,7 @@ print("Receiving data from webpage")
 getMimeType(str(args.url), str(args.path), str(args.output))
 filesCreated(str(args.output))
 getElements(str(args.path), str(args.output))
-#getContent(str(args.path))
+getContent(str(args.path), str(args.output))
 print("Webscraping Complete")
 
 
