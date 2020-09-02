@@ -2,11 +2,26 @@ import urllib.request, os.path, os, shutil, mimetypes, re, json, argparse, pprin
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-parser = argparse.ArgumentParser(description='Input the desired url and directory where you want the data files saved too')
-parser.add_argument('-u','--url', type=str, required=True, help='url of a website')
-parser.add_argument('-p','--path', type=str, required=True, help='directory path')
+parser = argparse.ArgumentParser(description='')
+requiredNamed = parser.add_argument_group('required arguments')
+requiredNamed.add_argument('-u','--url', type=str, required=True, help='url of a website')
+requiredNamed.add_argument('-p','--path', type=str, required=True, help='directory path')
 parser.add_argument('-f','--file',  default=False, action='store_true', help='create files')
 args = parser.parse_args()
+
+def checkErrors(url, path):
+	
+	try:
+		response = urllib.request.urlopen(url)
+	except:
+		print("Error: Bad Url")
+		sys.exit()
+	
+	try:
+		response = open(path + 'Web_Source.txt','w')
+	except:
+		print("Error: Bad Path")
+		sys.exit()
 
 def getWebPage(url, path):
 	
@@ -94,6 +109,7 @@ def filesCreated(output):
 
 def jayScraper(url, path, output):
 	print("Receiving data from webpage")
+	checkErrors(url, path)
 	getWebPage(url, path)
 	webData(url, path, output)
 	getScripts(path, output)
