@@ -1,13 +1,12 @@
-import urllib.request, os.path, os, shutil, mimetypes, re, json, argparse, pprint
+import urllib.request, os.path, os, shutil, mimetypes, re, json, argparse, pprint, sys
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Input the desired url and directory where you want the data files saved too')
 parser.add_argument('-u','--url', type=str, help='url of a website')
 parser.add_argument('-p','--path', type=str, help='directory path')
-parser.add_argument('-f','--file', type=str, help='create files')
+parser.add_argument('-f','--file',  default=False, action='store_true', help='create files')
 args = parser.parse_args()
-
 
 def getWebPage(url, path):
 	
@@ -32,7 +31,7 @@ def webData(url, path, output):
 	outer_dict["mime-type"] = getMimeType(url, path, output)
 	outer_dict["elements"] = getElements(path, output)
 
-	if output == 'file':
+	if output == True:
 		with open(path + "\\" +'Web_Data.json', 'w') as json_file:
 			json.dump(outer_dict, json_file, indent=1)	
 	else:
@@ -81,23 +80,27 @@ def getScripts(path, output):
 		cleanstring = cleanstring.strip()
 		string_dict[counter] = cleanstring
 
-	if output == 'file':
+	if output == True:
 		with open(path + "\\" + "Script_Data.json", 'w') as json_file:
 			json.dump(string_dict, json_file, indent=4)
 	else:
 		print(json.dumps(string_dict, indent=4))
 
 def filesCreated(output):
-	if output == 'file':
+	if output == True:
 		print("Files created")
 	else:
 		pass
 
-getWebPage(str(args.url), str(args.path))
-print("Receiving data from webpage")
-webData(str(args.url), str(args.path), str(args.output))
-getScripts(str(args.path), str(args.output))
-print("Webscraping Complete")
+def jayScraper(url, path, output):
+	print("Receiving data from webpage")
+	getWebPage(url, path)
+	webData(url, path, output)
+	getScripts(path, output)
+	filesCreated(output)
+	print("Webscraping Complete")
+
+jayScraper(str(args.url), str(args.path), (args.file))
 
 
 
