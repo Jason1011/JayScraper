@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Input the desired url and directory where you want the data files saved too')
-parser.add_argument('-u','--url', type=str, help='url of a website')
-parser.add_argument('-p','--path', type=str, help='directory path')
+parser.add_argument('-u','--url', type=str, required=True, help='url of a website')
+parser.add_argument('-p','--path', type=str, required=True, help='directory path')
 parser.add_argument('-f','--file',  default=False, action='store_true', help='create files')
 args = parser.parse_args()
 
@@ -14,7 +14,7 @@ def getWebPage(url, path):
 	webContent = response.read()
 	soup = BeautifulSoup(webContent, 'html.parser')
 
-	webContentContainer = open(path + "\\" + 'Web_Source.txt','w')
+	webContentContainer = open(path + 'Web_Source.txt','w')
 	webContentContainer.write(soup.prettify())
 
 def getMimeType(url, path, output):
@@ -32,7 +32,7 @@ def webData(url, path, output):
 	outer_dict["elements"] = getElements(path, output)
 
 	if output == True:
-		with open(path + "\\" +'Web_Data.json', 'w') as json_file:
+		with open(path + 'Web_Data.json', 'w') as json_file:
 			json.dump(outer_dict, json_file, indent=1)	
 	else:
 		print(json.dumps(outer_dict, indent=1))	
@@ -40,7 +40,7 @@ def webData(url, path, output):
 	
 def getElements(path, output):
 	infilename = "Web_Source.txt"
-	infile = open(path + "\\" + infilename,'r')
+	infile = open(path + infilename,'r')
 	lines = infile.readlines()
 	
 	return getElement(lines, path, output)
@@ -67,7 +67,7 @@ def getElement(lines, path, output):
 def getScripts(path, output):
 	
 	infilename = "Web_Source.txt"
-	infile = open(path + "\\" + infilename,'r')
+	infile = open(path + infilename,'r')
 	str1 = " "
 	theLines = (str1.join(infile))
 	
@@ -81,7 +81,7 @@ def getScripts(path, output):
 		string_dict[counter] = cleanstring
 
 	if output == True:
-		with open(path + "\\" + "Script_Data.json", 'w') as json_file:
+		with open(path + "Script_Data.json", 'w') as json_file:
 			json.dump(string_dict, json_file, indent=4)
 	else:
 		print(json.dumps(string_dict, indent=4))
