@@ -39,20 +39,19 @@ def getWebPage(url, path):
 	webContent = response.read()
 	soup = BeautifulSoup(webContent, 'html.parser')
 
-	webContentContainer = open(path + "\\" + 'Web_Data.txt','w')
+	webContentContainer = open(path + "\\" + 'Web_Source.txt','w')
 	webContentContainer.write(soup.prettify())
 
 def getMimeType(url, path, output):
 
-	if output == 'file':
-		outfilename = "MIMEtype_Data.txt"
-		outfile = open(path + "\\" + outfilename,'w')
 	with urllib.request.urlopen(url) as response:
 		info = response.info()
-		if output == 'file':
-			outfile.write("Mimetype: " + info.get_content_type())
-		else:
-			print("Mimetype: " + info.get_content_type())
+		mime_type = info.get_content_type()
+	return mime_type
+		#if output == 'file':
+		#	outfile.write("Mimetype: " + info.get_content_type())
+		#else:
+		#	print("Mimetype: " + info.get_content_type())
 	#infilename = "Web_Data.txt"
 	#infile = open(path + "\\" + infilename,'r')
 	#lines = infile.readlines()
@@ -101,17 +100,36 @@ def getMimeType(url, path, output):
 #				count = count + 1
 #	return count
 
+def webData(url, path, output):
+	outer_dict = {}
+
+	outer_dict["mime-type"] = getMimeType(url, path, output)
+	outer_dict["elements"] = getElements(path, output)
+
+	if output == 'file':
+		with open(path + "\\" +'Web_Data.json', 'w') as json_file:
+			json.dump(outer_dict, json_file, indent=1)	
+	else:
+		print(json.dumps(outer_dict, indent=1))	
+	
+	
+def getElements(path, output):
+	infilename = "Web_Source.txt"
+	infile = open(path + "\\" + infilename,'r')
+	lines = infile.readlines()
+	
+	return getElement(lines, path, output)
+
 def getElement(lines, path, output):
 
 	elements = []
 	frequency = {}
+	
 	for line in lines:
 		t = re.match(".*<(\\w+).*", line, re.IGNORECASE)
 		if t:
 			elements += [t.group(1)]
 	elements.sort()
-	if output != 'file':
-		print("Elemental Count:")
 	for element in elements:
 		if (element in frequency):
 			frequency[element] += 1
@@ -119,24 +137,11 @@ def getElement(lines, path, output):
 			frequency[element] = 1
 	for key, value in frequency.items():
 		("% s count: %d" % (key, value))
-	if output == 'file':
-		with open(path + "\\" +'elemental_data.json', 'w') as json_file:
-			json_file.write("Elemental Count: ")
-			json.dump(frequency, json_file, indent=4)
-	else:
-		for item, amount in frequency.items():
-			print("{} count: {}".format(item, amount))
-	
-def getElements(path, output):
-	infilename = "Web_Data.txt"
-	infile = open(path + "\\" + infilename,'r')
-	lines = infile.readlines()
-	
-	getElement(lines, path, output)
+	return frequency
 
-def getContent(path, output):
+def getScripts(path, output):
 	
-	infilename = "Web_Data.txt"
+	infilename = "Web_Source.txt"
 	infile = open(path + "\\" + infilename,'r')
 	str1 = " "
 	theLines = (str1.join(infile))
@@ -151,7 +156,7 @@ def getContent(path, output):
 		string_dict[counter] = cleanstring
 
 	if output == 'file':
-		with open(path + "\\" + "html_content.json", 'w') as json_file:
+		with open(path + "\\" + "Script_Data.json", 'w') as json_file:
 			json.dump(string_dict, json_file, indent=4)
 	else:
 		print(json.dumps(string_dict, indent=4))
@@ -162,27 +167,10 @@ def filesCreated(output):
 	else:
 		pass
 
-#def getElements():
-
-#	infilename = "theWebContent.txt"
-#	infile = open(infilename,'r')
-#	outfilename = "elementalData.txt"
-#	outfile = open(outfilename,'w')
-#	lines = infile.readlines()
-#
-#	d = []
-#	match_string = "<(\w+)"
-#	for line in lines:
-#		m = re.match(match_string, line, re.IGNORECASE)
-#		d.append(m)
-#	print(d)
-
 getWebPage(str(args.url), str(args.path))
 print("Receiving data from webpage")
-getMimeType(str(args.url), str(args.path), str(args.output))
-filesCreated(str(args.output))
-getElements(str(args.path), str(args.output))
-getContent(str(args.path), str(args.output))
+webData(str(args.url), str(args.path), str(args.output))
+getScripts(str(args.path), str(args.output))
 print("Webscraping Complete")
 
 
