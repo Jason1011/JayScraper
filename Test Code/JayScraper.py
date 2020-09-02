@@ -5,7 +5,7 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='Input the desired url and directory where you want the data files saved too')
 parser.add_argument('-u','--url', type=str, help='url of a website')
 parser.add_argument('-p','--path', type=str, help='directory path')
-parser.add_argument('-o','--output', type=str, help='If you want the data in a file type file')
+parser.add_argument('-f','--file', type=str, help='create files')
 args = parser.parse_args()
 
 
